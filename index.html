@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#081321">
+<title>TiMi Global Markets v0.7 — Suat DOĞU</title>
+<style>
+:root{color-scheme:dark;--bg:#07111e;--panel:#101e30;--panel2:#15263a;--line:#273c53;--text:#e9f1fa;--muted:#94a8bf;--accent:#24c5ad}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px system-ui,-apple-system,'Segoe UI',sans-serif}button{font:inherit;cursor:pointer}.shell{max-width:1500px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}.brand{font-size:23px;font-weight:800;letter-spacing:.2px}.brand span{color:var(--accent)}.sub,.hint,.foot{color:var(--muted);font-size:12px}.pill{border:1px solid var(--line);background:var(--panel);padding:9px 12px;border-radius:12px}.markets,.symbols,.intervals{display:flex;gap:8px;overflow-x:auto;padding:3px 0 12px;scrollbar-width:thin}.tab,.sym,.interval{white-space:nowrap;border:1px solid var(--line);border-radius:10px;padding:11px 14px;color:var(--text);background:var(--panel)}.tab.active,.sym.active,.interval.active{background:#123c41;border-color:var(--accent);color:#bafff0}.layout{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden}.cardhead{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.cardhead h2{margin:0;font-size:17px}.chart{height:590px;position:relative;background:#0c1726}.chart .tradingview-widget-container,.chart .tradingview-widget-container__widget{width:100%;height:100%}.status{font-size:12px;color:#f0ca78}.side{padding:16px}.side h3{margin:0 0 12px}.side p{line-height:1.65;color:var(--muted)}.info{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}.info strong{display:block;margin-bottom:5px}.info small{color:var(--muted);line-height:1.6}.action{border:1px solid var(--accent);background:#123c41;color:#d7fff6;padding:10px 13px;border-radius:10px}.foot{padding:20px 2px;text-align:center}.error{color:#ffb2b2}.loading{padding:18px;color:var(--muted)}@media(max-width:900px){.layout{grid-template-columns:1fr}.chart{height:540px}}@media(max-width:600px){.shell{padding:10px}.brand{font-size:20px}.chart{height:480px}.cardhead{padding:12px}.tab,.sym{padding:10px 12px}}
+
+.scoregrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.metric{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}.metric b{display:block;font-size:20px;margin:5px 0}.meter{height:8px;background:#263b4d;border-radius:10px;overflow:hidden;margin-top:8px}.meter>div{height:100%;background:var(--accent);width:0;transition:width .3s}.scores{padding:14px}.scoreline{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}.tvtech{height:440px;position:relative}.tvtech .tradingview-widget-container,.tvtech .tradingview-widget-container__widget{height:100%;width:100%}.notice{color:#f0ca78;line-height:1.6}.scoretitle{font-size:25px;font-weight:800}.scores h3{margin:6px 0 10px}.wide{grid-column:1/-1}@media(max-width:500px){.scoregrid{grid-template-columns:1fr 1fr}.scoretitle{font-size:22px}}
+#futuresPower{margin-top:14px}.powerline{display:flex;justify-content:space-between;gap:12px;align-items:center}.powerline strong{font-size:28px;color:var(--accent)}.events{max-height:220px;overflow:auto;font-variant-numeric:tabular-nums}.events div{padding:8px 0;border-bottom:1px solid var(--line)}#futuresPanel{grid-column:1/-1}#futuresGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}#futuresGrid .metric{min-width:0}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="top"><div><div class="brand">TiMi <span>Global Markets</span></div><div class="sub">v0.7 · Çoklu Piyasa Analiz Kokpiti · Suat DOĞU</div></div><div class="pill" id="connection">● TradingView bağlantısı hazırlanıyor</div></header>
+<nav class="markets" id="markets" aria-label="Piyasa seçimi"></nav>
+<div class="layout"><main class="card"><div class="cardhead"><div><h2 id="heading">Grafik</h2><div class="hint" id="description"></div></div><button class="action" id="reload">↻ Grafiği yenile</button></div><div class="side" style="padding-bottom:0"><div class="symbols" id="symbols" aria-label="Sembol seçimi"></div><div class="hint" style="padding:8px 0">🔒 Ortak zaman dilimi: <strong id="activeTimeframe">1 Gün</strong> — Grafik, TradingView teknik analiz ve TiMi skoru birlikte yenilenir.</div><div class="intervals" id="intervals" aria-label="Zaman dilimi seçimi"></div></div><div class="chart" id="chart"><div class="loading">TradingView grafiği yükleniyor…</div></div></main><section id="futuresPanel" class="card side" style="display:none"><h3>📈 Binance USDⓈ-M Futures</h3><div class="hint" id="futuresStatus">Veri bekleniyor</div><div id="futuresGrid" class="scoregrid" style="margin-top:12px"></div><p class="hint">Funding, mark/index ve açık pozisyon anlık piyasa ölçümleridir; seçilen mum periyoduna göre hesaplanmaz. Teknik skor ise seçilen zaman dilimindeki kapanmış vadeli mumlardan hesaplanır. Long/short oranı ayrı bir örnekleme penceresine aittir.</p><section id="futuresPower" class="info"><h3>⚡ TiMi Futures Güç Skoru</h3><div class="powerline"><div><strong id="powerScore">— / 100</strong><div class="hint" id="powerVerdict">Veri bekleniyor</div></div><div class="hint" id="powerCoverage">Kapsam: —</div></div><div class="meter"><div id="powerBar"></div></div><div id="powerDetails" class="scoregrid"></div><p class="hint">Teknik skor ayrı hesaplanır. Futures Güç Skoru, OI eğilimi + taker baskısı + seçilen periyottaki kesintisiz CVD üzerinden yönsel bir göstergedir. Likidasyonlar bilgi amaçlı gösterilir, puana katılmaz. Veri eksikse skor hesaplanmaz.</p></section><section class="info"><h3>📉 Sürekli CVD · seçilen zaman penceresi</h3><p class="hint">Tanılama: WebSocket mesajı ve son işlem saati alanlarını kontrol edin. Tamamlanmamış son dakika hesaba katılmaz. Sıfır, doğrulanmış sıfır hacim anlamına gelmez.</p><div class="hint" id="cvdStatus">Akış henüz başlamadı</div><div id="cvdGrid" class="scoregrid" style="margin-top:10px"></div><p class="hint">aggTrade WebSocket: agresif alış eksi agresif satış, USDT cinsinden. Veriler tarayıcı açıkken toplanır; son 24 saatlik 1 dakikalık özetler bu cihazda saklanır. Son 5 dakikalık geçmiş REST ile sınırlı biçimde alınır. REST ve WebSocket arasındaki eksiksiz işlem sürekliliği henüz doğrulanmadığından CVD yalnızca ön izleme olarak gösterilir; Futures Güç Skoru bloke edilir. Bu işlem akışı TradingView verisi değildir.</p></section><section class="info"><h3>💥 Canlı likidasyon akışı</h3><div id="liquidationStatus" class="hint">Akış bekleniyor</div><div class="events" id="liquidationEvents"></div><p class="hint">Binance forceOrder WebSocket yalnızca bağlantı sonrası gözlenen olayları verir. Tüm likidasyonların eksiksiz tarihçesi değildir; yayın akışı örneklemeli olabilir.</p></section><button class="action" id="futuresRefresh">↻ Futures verilerini yenile</button></section><aside class="card side"><h3>📊 TiMi Genel Bakış <small style="color:var(--accent)" id="scoreTimeframe">1 Gün</small></h3><div class="info"><strong>TiMi Toplam Skor</strong><div class="scoretitle" id="totalScore">— / 100</div><div class="meter"><div id="scorebar"></div></div><small id="scoreLabel">Veri bekleniyor</small></div><div class="scoregrid" id="scoregrid"></div><div class="info"><strong>Veri kaynağı / durum</strong><small id="dataStatus">Bekleniyor</small></div><h3>TradingView Teknik Analiz <small style="color:var(--accent)" id="tvTimeframe">1 Gün</small></h3><div class="tvtech" id="tvtech"></div><h3>📊 Piyasa Bilgileri</h3><div class="info"><strong id="selected">—</strong><small id="venue">—</small></div><div class="info"><strong>Veri ve seans durumu</strong><small id="note">—</small></div><div class="info"><strong>Skorlama yöntemi</strong><small>TiMi skoru TradingView widget skorundan bağımsız hesaplanır. 30 trend + 25 momentum + 15 volatilite + 15 hacim + 15 fiyat yapısı. Veri yoksa skor gösterilmez.</small></div><div class="info"><strong>Güvenlik</strong><small>Salt okunur grafik terminali. API anahtarı istemez, gerçek emir göndermez.</small></div><p>Ortak zaman dilimi yalnızca üstteki düğmelerden değiştirilir. TradingView grafik ve teknik özet widget’ları yeniden oluşturulur. Grafikteki tarih aralığı değişiklikleri analiz periyodunu değiştirmez. Grafiğin veri kapsamı, gecikmesi ve çizim araçları TradingView widget koşullarına bağlıdır. Bu sayfa TradingView'in ham verilerini indirmez.</p></aside></div>
+<footer class="foot">TiMi Global Markets v0.2 · Geliştirici: Suat DOĞU · TradingView grafikleri TradingView tarafından sağlanır.</footer>
+</div>
+<script>
+'use strict';
+const DATA={
+ futures:{label:'📈 Binance Futures',note:'USDⓈ-M perpetual vadeli işlemler. API anahtarsız salt okunur piyasa verileri. OI anlık değer, fonlama ve oranların zaman ölçekleri ayrı olabilir.',items:[['BTCUSDT Perp','BINANCE:BTCUSDT.P'],['ETHUSDT Perp','BINANCE:ETHUSDT.P'],['SOLUSDT Perp','BINANCE:SOLUSDT.P'],['BNBUSDT Perp','BINANCE:BNBUSDT.P']]},
+ crypto:{label:'₿ Kripto',note:'Kripto piyasaları genellikle 7/24 açıktır. Seçilen borsanın fiyat akışı ve erişim koşulları geçerlidir.',items:[['BTC/USDT','BINANCE:BTCUSDT'],['ETH/USDT','BINANCE:ETHUSDT'],['SOL/USDT','BINANCE:SOLUSDT'],['BNB/USDT','BINANCE:BNBUSDT']]},
+ bist:{label:'🇹🇷 BIST',note:'BIST seans saatleri ve canlı/gecikmeli veri hakları sağlayıcıya göre değişir. Bazı semboller için ek piyasa veri aboneliği gerekebilir.',items:[['BIST 100','BIST:XU100'],['THYAO','BIST:THYAO'],['ASELS','BIST:ASELS'],['TUPRS','BIST:TUPRS']]},
+ usa:{label:'🇺🇸 ABD',note:'ABD hisselerinde normal/uzatılmış seans ve veri gecikmesi ayrımına dikkat edin. Endeks örneği yerine hisse sembolleri kullanılmıştır.',items:[['Apple','NASDAQ:AAPL'],['NVIDIA','NASDAQ:NVDA'],['Microsoft','NASDAQ:MSFT'],['Tesla','NASDAQ:TSLA']]},
+ forex:{label:'💱 Forex',note:'Forex merkezi tek borsa değildir. Kotasyonlar seçilen sağlayıcıya göre farklılık gösterebilir; hafta sonu çoğu piyasa kapalıdır.',items:[['EUR/USD','FX:EURUSD'],['GBP/USD','FX:GBPUSD'],['USD/JPY','FX:USDJPY'],['USD/TRY','FX:USDTRY']]},
+ gold:{label:'🥇 Altın',note:'XAU/USD spot altın, gram altın ve vadeli altın farklı enstrümanlardır. Burada TradingView tarafından desteklenen örnek semboller kullanılır.',items:[['Ons altın','OANDA:XAUUSD'],['Gram altın','FX_IDC:XAUTRYG'],['Altın vadeli','COMEX:GC1!'],['Gümüş','OANDA:XAGUSD']]}
+};
+const INTERVALS=[['1D','D'],['4S','240'],['1S','60'],['15Dk','15'],['5Dk','5']];
+let market='crypto',index=0,interval='D',loadTimer=null,requestId=0,futuresTimer=null,futuresReq=0,liquidationSocket=null,liquidationRetry=null,liquidationSeq=0;
+const TF_LABEL={'D':'1 Gün','240':'4 Saat','60':'1 Saat','15':'15 Dakika','5':'5 Dakika'};
+const $=id=>document.getElementById(id);
+function button(text,cls,active,handler){const b=document.createElement('button');b.type='button';b.className=cls+(active?' active':'');b.textContent=text;b.addEventListener('click',handler);return b;}
+function renderControls(){const m=$('markets');m.replaceChildren();Object.entries(DATA).forEach(([key,data])=>m.append(button(data.label,'tab',key===market,()=>{market=key;index=0;render();})));const s=$('symbols');s.replaceChildren();DATA[market].items.forEach(([name],i)=>s.append(button(name,'sym',i===index,()=>{index=i;render();})));const t=$('intervals');t.replaceChildren();INTERVALS.forEach(([name,val])=>t.append(button(name,'interval',val===interval,()=>{interval=val;render();})));}
+function loadChart(){const symbol=DATA[market].items[index][1];const chart=$('chart');chart.replaceChildren();const wrap=document.createElement('div');wrap.className='tradingview-widget-container';const widget=document.createElement('div');widget.className='tradingview-widget-container__widget';wrap.append(widget);chart.append(wrap);$('connection').textContent='● TradingView yükleniyor…';$('connection').classList.remove('error');
+const script=document.createElement('script');script.type='text/javascript';script.async=true;script.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';script.textContent=JSON.stringify({autosize:true,symbol,interval,timezone:'Europe/Istanbul',theme:'dark',style:'1',locale:'tr',allow_symbol_change:false,calendar:false,hide_top_toolbar:true,hide_legend:false,save_image:true,withdateranges:true,support_host:'https://www.tradingview.com'});script.onerror=()=>{$('connection').textContent='● Grafik servisine erişilemiyor';$('connection').classList.add('error');};wrap.append(script);
+clearTimeout(loadTimer);loadTimer=setTimeout(()=>{if($('connection').textContent.includes('yükleniyor'))$('connection').textContent='● Widget çağrıldı · grafiği kontrol edin';},10000);
+}
+function loadTechnical(){const symbol=DATA[market].items[index][1];const el=$('tvtech');el.replaceChildren();const wrap=document.createElement('div');wrap.className='tradingview-widget-container';const inner=document.createElement('div');inner.className='tradingview-widget-container__widget';wrap.append(inner);el.append(wrap);const script=document.createElement('script');script.async=true;script.src='https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';script.textContent=JSON.stringify({interval:interval==='D'?'1D':interval==='240'?'4h':interval==='60'?'1h':interval==='15'?'15m':'5m',width:'100%',height:'100%',symbol,showIntervalTabs:false,displayMode:'single',locale:'tr',colorTheme:'dark',isTransparent:true});script.onerror=()=>{el.textContent='TradingView teknik analiz widget yüklenemedi.'};wrap.append(script);}
+function ema(values,period){let k=2/(period+1),out=[values[0]];for(let i=1;i<values.length;i++)out.push(values[i]*k+out[i-1]*(1-k));return out;}
+function avg(a){return a.reduce((x,y)=>x+y,0)/a.length;}
+function rsi(values,n=14){const changes=values.slice(1).map((x,i)=>x-values[i]);let gain=avg(changes.slice(0,n).map(x=>Math.max(0,x))),loss=avg(changes.slice(0,n).map(x=>Math.max(0,-x)));for(let i=n;i<changes.length;i++){gain=(gain*(n-1)+Math.max(0,changes[i]))/n;loss=(loss*(n-1)+Math.max(0,-changes[i]))/n;}return loss===0?(gain===0?50:100):100-100/(1+gain/loss);}
+function scoreGroup(points,max){return Math.max(0,Math.min(max,points));}
+function calculate(rows){const c=rows.map(r=>+r[4]),h=rows.map(r=>+r[2]),l=rows.map(r=>+r[3]),v=rows.map(r=>+r[5]);const last=c.at(-1),prev=c.at(-2),e20=ema(c,20).at(-1),e50=ema(c,50).at(-1),e200=ema(c,200).at(-1),ma20=avg(c.slice(-20));const slowEma=ema(c,26),fastEma=ema(c,12);const macd=fastEma.map((x,i)=>x-slowEma[i]);const signal=ema(macd,9).at(-1),hist=macd.at(-1)-signal;const r=rsi(c),hh=Math.max(...h.slice(-14)),ll=Math.min(...l.slice(-14)),stoch=hh===ll?50:100*(last-ll)/(hh-ll);const variance=avg(c.slice(-20).map(x=>(x-ma20)**2)),sd=Math.sqrt(variance),bandPos=sd===0?0:(last-ma20)/(2*sd);const tr=c.map((x,i)=>i===0?h[i]-l[i]:Math.max(h[i]-l[i],Math.abs(h[i]-c[i-1]),Math.abs(l[i]-c[i-1]))),atr=avg(tr.slice(-14)),atrPct=100*atr/last;const vAvg=avg(v.slice(-21,-1)),vr=vAvg? v.at(-1)/vAvg:0;const priorHigh=Math.max(...h.slice(-21,-1)),priorLow=Math.min(...l.slice(-21,-1));
+const trend=scoreGroup((last>e20?8:0)+(e20>e50?7:0)+(e50>e200?7:0)+(hist>0?8:0),30);
+const momentum=scoreGroup((r>=50&&r<=70?13:r>70?7:r>=40?6:0)+(stoch>=50&&stoch<=80?12:stoch>80?6:stoch>=35?5:0),25);
+const volatility=scoreGroup((Math.abs(bandPos)<=0.8?8:Math.abs(bandPos)<=1.2?5:2)+(atrPct>=0.3&&atrPct<=4?7:atrPct<=7?4:1),15);
+const volume=scoreGroup(vr>=1.5&&last>=prev?15:vr>=1&&last>=prev?11:vr>=.7?7:3,15);
+const structure=scoreGroup((last>priorHigh?10:last>ma20?7:last>priorLow?3:0)+(last>prev?5:0),15);
+return {total:trend+momentum+volatility+volume+structure,groups:[['Trend',trend,30],['Momentum',momentum,25],['Volatilite',volatility,15],['Hacim',volume,15],['Fiyat yapısı',structure,15]],metrics:[['RSI (14)',r.toFixed(1)],['Stochastic %K',stoch.toFixed(1)],['EMA 20',e20.toFixed(4)],['EMA 50',e50.toFixed(4)],['EMA 200',e200.toFixed(4)],['MACD histogram',hist.toFixed(5)],['ATR (14)',atrPct.toFixed(2)+'%'],['Hacim / Ort.',vr.toFixed(2)+'x']],price:last};}
+function showScores(result){$('scoregrid').replaceChildren();if(!result){$('totalScore').textContent='— / 100';$('scoreLabel').textContent='Hesaplanabilir veri yok';$('scorebar').style.width='0';return;}$('totalScore').textContent=result.total+' / 100';$('scorebar').style.width=result.total+'%';$('scoreLabel').textContent=result.total>=80?'Güçlü Al':result.total>=60?'Al':result.total>=41?'Nötr':result.total>=21?'Sat':'Güçlü Sat';for(const [name,val,max] of result.groups){const el=document.createElement('div');el.className='metric';el.innerHTML='<small></small><b></b><div class="meter"><div></div></div>';el.querySelector('small').textContent=name;el.querySelector('b').textContent=val+' / '+max;el.querySelector('.meter div').style.width=(val/max*100)+'%';$('scoregrid').append(el);}for(const [name,val] of result.metrics){const el=document.createElement('div');el.className='metric';const label=document.createElement('small'),value=document.createElement('b');label.textContent=name;value.textContent=val;el.append(label,value);$('scoregrid').append(el);}}
+async function loadScores(){const current=++requestId;const selectedTf=TF_LABEL[interval];showScores(null);if(market!=='crypto'&&market!=='futures'){$('dataStatus').textContent=selectedTf+' · Bu piyasa için bağımsız, lisanslı mum veri API bağlantısı henüz yok. TradingView teknik özet widget’ı yukarıda gösterilir; TiMi skoru hesaplanmaz.';return;}
+$('dataStatus').textContent=selectedTf+' · Binance '+(market==='futures'?'Futures':'Spot')+' kapanmış mum verileri alınıyor…';const symbol=DATA[market].items[index][1].split(':')[1].replace('.P','');const apiInterval=interval==='D'?'1d':interval==='240'?'4h':interval==='60'?'1h':interval==='15'?'15m':'5m';try{const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);let response;try{response=await fetch((market==='futures'?'https://fapi.binance.com/fapi/v1/klines?symbol=':'https://data-api.binance.vision/api/v3/klines?symbol=')+encodeURIComponent(symbol)+'&interval='+apiInterval+'&limit=260',{signal:controller.signal,cache:'no-store'});}finally{clearTimeout(timeout);}if(!response.ok)throw Error('HTTP '+response.status);let rows=await response.json();if(current!==requestId)return;if(!Array.isArray(rows)||rows.length<220)throw Error('Yetersiz mum verisi');const now=Date.now();rows=rows.filter(r=>Number(r[6])<now);if(rows.length<220)throw Error('Yeterli kapanmış mum yok');const result=calculate(rows);showScores(result);$('dataStatus').textContent=selectedTf+' · Binance '+(market==='futures'?'Futures':'Spot')+' REST · '+symbol+' · '+apiInterval+' · '+rows.length+' kapanmış mum · son kapanış: '+new Date(Number(rows.at(-1)[6])).toLocaleString('tr-TR')+' · skor TradingView’den alınmadı.';}catch(err){if(current!==requestId)return;$('dataStatus').textContent='Veri alınamadı: '+err.message+'. Binance erişimi, ağ veya tarayıcı CORS engeli olabilir. Skor üretilmedi.';}}
+
+function clearLiquidations(){
+ ++liquidationSeq;
+ if(liquidationRetry){clearTimeout(liquidationRetry);liquidationRetry=null;}
+ if(liquidationSocket){const ws=liquidationSocket;liquidationSocket=null;ws.onclose=null;ws.onerror=null;ws.onmessage=null;ws.close();}
+}
+function startLiquidations(){
+ clearLiquidations();if(market!=='futures')return;
+ const seq=liquidationSeq,symbol=DATA.futures.items[index][1].split(':')[1].replace('.P','');
+ const events=$('liquidationEvents'),status=$('liquidationStatus');events.replaceChildren();
+ const connect=()=>{
+  if(seq!==liquidationSeq||market!=='futures')return;
+  status.textContent='Binance forceOrder akışına bağlanılıyor…';
+  let ws;try{ws=new WebSocket('wss://fstream.binance.com/ws/'+symbol.toLowerCase()+'@forceOrder');}catch(e){status.textContent='WebSocket başlatılamadı: '+e.message;return;}
+  liquidationSocket=ws;
+  ws.onopen=()=>{if(seq===liquidationSeq)status.textContent='● Canlı akış bağlı · '+symbol+' · bağlantı sonrası olaylar';};
+  ws.onmessage=e=>{if(seq!==liquidationSeq)return;try{const d=JSON.parse(e.data),o=d.o;if(!o)return;const item=document.createElement('div');const qty=Number(o.q),price=Number(o.ap||o.p);item.textContent=new Date(d.E).toLocaleTimeString('tr-TR')+' · '+o.S+' · '+qty.toLocaleString('tr-TR',{maximumFractionDigits:5})+' kontrat · '+price.toLocaleString('tr-TR',{maximumFractionDigits:5})+' USDT · ≈'+(qty*price).toLocaleString('tr-TR',{maximumFractionDigits:0})+' USDT';events.prepend(item);while(events.children.length>25)events.lastElementChild.remove();}catch{}};
+  ws.onerror=()=>{if(seq===liquidationSeq)status.textContent='WebSocket bağlantı hatası';};
+  ws.onclose=()=>{if(seq!==liquidationSeq)return;status.textContent='Akış koptu · 5 saniye sonra tekrar bağlanılacak';liquidationRetry=setTimeout(connect,5000);};
+ };
+ connect();
+}
+// Sürekli aggTrade akışı: 1 dakikalık UTC kovalar, cihazda sınırlı saklama.
+let lastCvdPaint=0,tradeMessages=0,tradeBadMessages=0,tradeError='',verifiedFrom=Infinity,backfillBusy=false,backfillMessage="",tradeSocket=null,tradeRetry=null,tradeSeq=0,tradeSymbol='',tradeBuckets=[],tradeLastId=null,tradeLastAt=0,tradeConnectedAt=0,tradeGap=false,tradeGapAt=0,tradeSaveAt=0;
+const WINDOW_MS={'5':300000,'15':900000,'60':3600000,'240':14400000,'D':86400000};
+function stopTradeStream(){++tradeSeq;if(tradeRetry)clearTimeout(tradeRetry);tradeRetry=null;if(tradeSocket){const w=tradeSocket;tradeSocket=null;w.onclose=null;w.onmessage=null;w.onerror=null;w.close();}}
+function persistTrade(){try{localStorage.setItem('timi_cvd_'+tradeSymbol,JSON.stringify({b:tradeBuckets.slice(-1441),last:tradeLastId,at:tradeLastAt,gap:tradeGap,gapAt:tradeGapAt}));}catch{}}
+function startTradeStream(){
+ stopTradeStream();if(market!=='futures')return;
+ const symbol=DATA.futures.items[index][1].split(':')[1].replace('.P','');tradeSymbol=symbol;tradeBuckets=[];tradeLastId=null;tradeLastAt=0;tradeGap=false;tradeGapAt=0;verifiedFrom=Infinity;backfillMessage="";tradeMessages=0;tradeBadMessages=0;tradeError='';
+ try{const old=JSON.parse(localStorage.getItem('timi_cvd_'+symbol)||'null');if(old&&Array.isArray(old.b)){tradeBuckets=old.b.filter(b=>Array.isArray(b)&&b.length===4&&Date.now()-b[0]<86460000);tradeLastId=old.last;tradeLastAt=old.at||0;tradeGap=!!old.gap;tradeGapAt=old.gapAt||old.at||0;if(Date.now()-tradeLastAt>90000){tradeGap=true;tradeGapAt=Date.now();}}}catch{}
+ const seq=tradeSeq;
+ const connect=()=>{
+  if(seq!==tradeSeq||market!=='futures')return;
+  $('cvdStatus').textContent='Binance aggTrade akışına bağlanılıyor…';
+  let w;try{w=new WebSocket('wss://fstream.binance.com/ws/'+symbol.toLowerCase()+'@aggTrade');}catch(e){$('cvdStatus').textContent='Bağlantı kurulamadı: '+e.message;return;}
+  tradeSocket=w;
+  w.onopen=()=>{tradeConnectedAt=Date.now();$('cvdStatus').textContent='● Akış bağlı · '+symbol;backfillRecent(symbol,seq);};
+  w.onmessage=e=>{if(seq!==tradeSeq)return;try{
+   tradeMessages++;const t=JSON.parse(e.data),id=Number(t.a),ts=Number(t.T),qty=Number(t.q)*Number(t.p);
+   if(!Number.isFinite(id)||!Number.isFinite(ts)||!Number.isFinite(qty)||qty<=0){tradeBadMessages++;return;}
+   if(tradeLastId!==null&&id<=tradeLastId)return;
+   // Id atlaması her zaman veri kaybı demek değildir; zaman kesintisi güvenli biçimde işaretlenir.
+   if(tradeLastAt&&ts-tradeLastAt>90000){tradeGap=true;tradeGapAt=ts;}
+   const minute=Math.floor(ts/60000)*60000,delta=t.m?-qty:qty;
+   let b=tradeBuckets.at(-1);
+   if(!b||b[0]!==minute){b=[minute,0,0,0];tradeBuckets.push(b);}
+   b[1]+=delta;b[2]+=qty;b[3]++;
+   tradeLastId=id;tradeLastAt=ts;
+   tradeBuckets=tradeBuckets.filter(x=>ts-x[0]<86460000).slice(-1441);
+   if(Date.now()-tradeSaveAt>10000){tradeSaveAt=Date.now();persistTrade();} if(Date.now()-lastCvdPaint>1200){lastCvdPaint=Date.now();renderCvd();}
+  }catch(e){tradeBadMessages++;tradeError=String(e.message||e);}};
+  w.onerror=()=>{tradeError='WebSocket bağlantı hatası';$('cvdStatus').textContent=tradeError;};
+  w.onclose=()=>{if(seq!==tradeSeq)return;tradeGap=true;tradeGapAt=Date.now();verifiedFrom=Infinity;persistTrade();renderCvd();$('cvdStatus').textContent='Akış koptu · 5 sn sonra yeniden bağlanılacak';tradeRetry=setTimeout(connect,5000);};
+ };connect();renderCvd();
+}
+// REST onarımı yalnızca son 5 dakika içindir; Binance'in 1000 kayıt/sayfa limiti
+// ve istek kotaları nedeniyle daha uzun pencereler için tamlık iddia edilmez.
+async function backfillRecent(symbol,seq){
+ if(backfillBusy)return;
+ backfillBusy=true;backfillMessage='Son 5 dakika REST geçmişi doğrulanıyor';renderCvd();
+ const end=Date.now()-2500,start=Math.floor((end-300000)/60000)*60000;
+ let from=start,all=[],ok=false,reason='';
+ try{
+  for(let page=0;page<20&&from<end;page++){
+   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9000);
+   let r;try{r=await fetch('https://fapi.binance.com/fapi/v1/aggTrades?symbol='+encodeURIComponent(symbol)+'&startTime='+from+'&endTime='+end+'&limit=1000',{signal:controller.signal,cache:'no-store'});}finally{clearTimeout(timer);}
+   if(!r.ok)throw Error('HTTP '+r.status);
+   const rows=await r.json();if(!Array.isArray(rows))throw Error('Geçersiz veri');
+   all.push(...rows);if(rows.length<1000){ok=true;break;}
+   const last=Number(rows.at(-1)?.T);if(!Number.isFinite(last)||last<from)throw Error('Zaman ilerlemedi');
+   // Aynı milisaniyedeki 1000+ işlemde zaman tabanlı sayfalama güvenli değildir.
+   if(rows.filter(x=>Number(x.T)===last).length>1){throw Error('Aynı milisaniyede sayfa sınırı: eksiksizlik doğrulanamadı');}
+   from=last+1;
+  }
+  if(!ok)throw Error('20 sayfa sınırı veya eksik sayfalama');
+  if(seq!==tradeSeq||symbol!==tradeSymbol)return;
+  const buckets=new Map();for(const t of all){const ts=Number(t.T),q=Number(t.p)*Number(t.q);if(!Number.isFinite(ts)||!Number.isFinite(q)||q<=0)continue;const minute=Math.floor(ts/60000)*60000,b=buckets.get(minute)||[minute,0,0,0];b[1]+=(t.m?-q:q);b[2]+=q;b[3]++;buckets.set(minute,b);}
+  // Tarihsel pencereyi yenile; REST bitişinden sonraki canlı dakikayı koru.
+  tradeBuckets=tradeBuckets.filter(b=>b[0]<start||b[0]>Math.floor(end/60000)*60000).concat([...buckets.values()]).sort((a,b)=>a[0]-b[0]).slice(-1441);
+  // REST verisi sorgu bitişine kadar güvenilir, fakat sorgu ve canlı akış arasındaki
+  // işlemler kanıtlanmadı. Bu nedenle yalnızca REST tamlığı raporlanır, skor kilitli kalır.
+  verifiedFrom=start;backfillMessage='REST son 5 dk alındı; canlı akışla boşluksuz birleşim doğrulanmadı';
+  persistTrade();
+ }catch(e){backfillMessage='REST onarımı başarısız: '+e.message;verifiedFrom=Infinity;}
+ finally{backfillBusy=false;if(seq===tradeSeq)renderCvd();}
+}
+function cvdWindow(){
+ const ms=WINDOW_MS[interval],now=Date.now(),end=Math.floor(now/60000)*60000,start=end-ms;
+ const rows=tradeBuckets.filter(b=>b[0]>=start&&b[0]<end);
+ // Her dakikada işlem olmak zorunda değil; geçmişte kopma varsa tam kapsama iddia edilmez.
+ const first=tradeBuckets[0]?.[0]??Infinity;
+ const complete=(!tradeGap||tradeGapAt<start)&&first<start-60000&&tradeLastAt>=end-60000&&rows.length>0&&verifiedFrom<=start&&false; // REST/WebSocket sınırında kesin ID sürekliliği henüz kanıtlanmıyor
+ const cvd=rows.reduce((a,b)=>a+b[1],0),volume=rows.reduce((a,b)=>a+b[2],0),count=rows.reduce((a,b)=>a+b[3],0);
+ return {complete,cvd,volume,count,ms,first,start,end,ratio:volume>0?cvd/volume:null};
+}
+function renderCvd(){if(market!=='futures')return;const x=cvdWindow(),grid=$('cvdGrid');grid.replaceChildren();
+ const fmt=(v,d=0)=>Number(v).toLocaleString('tr-TR',{maximumFractionDigits:d});
+ const add=(k,v)=>{const d=document.createElement('div');d.className='metric';const a=document.createElement('small'),b=document.createElement('b');a.textContent=k;b.textContent=v;d.append(a,b);grid.append(d)};
+ add('Zaman penceresi',TF_LABEL[interval]);add('CVD (USDT)',fmt(x.cvd));add('İşlem hacmi (USDT)',fmt(x.volume));add('Agresif işlem sayısı',fmt(x.count));add('CVD / hacim',x.ratio===null?'—':fmt(x.ratio*100,2)+'%');
+ add('Kapsam',x.complete?'Tam pencere':'Eksik / doğrulanmadı');add('WebSocket mesajı',fmt(tradeMessages));add('Geçersiz mesaj',fmt(tradeBadMessages));add('Son işlem saati',tradeLastAt?new Date(tradeLastAt).toLocaleTimeString('tr-TR'):'—');add('Bağlantı',tradeSocket?.readyState===1?'Açık':tradeSocket?.readyState===0?'Bağlanıyor':'Kapalı');
+ $('cvdStatus').textContent=(tradeSocket?.readyState===1?'● Canlı':'○ Bağlı değil')+' · '+tradeSymbol+' · '+(x.complete?'tamamlanmış zaman penceresi':'yeterli kesintisiz geçmiş bekleniyor')+(tradeGap?' · bağlantı kesintisi tespit edildi':'')+(backfillMessage?' · '+backfillMessage:'')+(tradeError?' · '+tradeError:'');
+}
+function powerReset(message){$('powerScore').textContent='— / 100';$('powerVerdict').textContent=message;$('powerCoverage').textContent='Kapsam: —';$('powerBar').style.width='0';$('powerDetails').replaceChildren();}
+function powerMetric(label,value){const el=document.createElement('div');el.className='metric';const a=document.createElement('small'),b=document.createElement('b');a.textContent=label;b.textContent=value;el.append(a,b);$('powerDetails').append(el);}
+function calcFuturesPower(oi,taker,cvdData,period){
+ // Bu skor yönsel basınç ölçüsüdür; başarı olasılığı değildir.
+ if(!Array.isArray(oi)||oi.length<3||!Array.isArray(taker)||taker.length<2||!cvdData?.complete||!(cvdData.volume>0))throw Error('OI, taker veya işlem örneklemi yetersiz');
+ const firstOI=Number(oi[0].sumOpenInterest),lastOI=Number(oi.at(-1).sumOpenInterest);
+ const buy=taker.reduce((a,r)=>a+Number(r.buyVol),0),sell=taker.reduce((a,r)=>a+Number(r.sellVol),0);
+ if(!(firstOI>0&&lastOI>0&&buy+sell>0))throw Error('Geçersiz OI veya taker hacmi');
+ const oiDelta=(lastOI/firstOI-1)*100,imbalance=(buy-sell)/(buy+sell);
+ const cvd=cvdData.cvd,cvdRatio=cvdData.ratio;
+ // OI artışı tek başına long/short yönü vermez. Bu yüzden OI bileşeni yönsel değil, basınç teyididir.
+ const direction=Math.sign(imbalance+cvdRatio);
+ const oiComponent=50+direction*Math.max(-1,Math.min(1,oiDelta/2))*25;
+ const takerComponent=50+Math.max(-1,Math.min(1,imbalance*4))*50;
+ const cvdComponent=50+Math.max(-1,Math.min(1,cvdRatio*4))*50;
+ const score=Math.round(Math.max(0,Math.min(100,oiComponent*.2+takerComponent*.4+cvdComponent*.4)));
+ return {score,oiDelta,imbalance,cvd,cvdRatio,oiComponent,takerComponent,cvdComponent,count:cvdData.count,period};
+}
+async function loadFutures(){
+ if(market!=='futures')return;
+ const id=++futuresReq,symbol=DATA.futures.items[index][1].split(':')[1].replace('.P','');
+ const status=$('futuresStatus'),grid=$('futuresGrid');status.textContent='Binance Futures verileri yükleniyor: '+symbol;grid.replaceChildren();powerReset('Kaynaklar yükleniyor…');
+ const base='https://fapi.binance.com';
+ const get=async(path)=>{const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),10000);try{const r=await fetch(base+path,{signal:ctl.signal,cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);return await r.json();}finally{clearTimeout(tm)}};
+ const period=interval==='D'?'1d':interval==='240'?'4h':interval==='60'?'1h':interval==='15'?'15m':'5m';
+ // Binance futures/data geçmiş veri pencereleri ve limitleri sağlayıcıya bağlıdır.
+ const paths=[['24s','/fapi/v1/ticker/24hr?symbol='+symbol],['Mark/Funding','/fapi/v1/premiumIndex?symbol='+symbol],['OI','/fapi/v1/openInterest?symbol='+symbol],['Derinlik','/fapi/v1/depth?symbol='+symbol+'&limit=5'],['Long/Short','/futures/data/globalLongShortAccountRatio?symbol='+symbol+'&period=5m&limit=1'],['OI Geçmişi','/futures/data/openInterestHist?symbol='+symbol+'&period='+period+'&limit=12'],['Taker','/futures/data/takerlongshortRatio?symbol='+symbol+'&period='+period+'&limit=12']];
+ const settled=await Promise.allSettled(paths.map(x=>get(x[1])));if(id!==futuresReq||market!=='futures')return;
+ const data=Object.fromEntries(settled.map((r,i)=>[paths[i][0],r.status==='fulfilled'?r.value:null]));
+ const fmt=(v,d=4)=>v==null||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('tr-TR',{maximumFractionDigits:d});
+ const values=[];const t=data['24s'],m=data['Mark/Funding'],o=data.OI,b=data.Derinlik,l=data['Long/Short']?.[0];
+ if(t)values.push(['Son fiyat',fmt(t.lastPrice,6)+' USDT'],['24s değişim',fmt(t.priceChangePercent,2)+'%'],['24s hacim (USDT)',fmt(t.quoteVolume,0)]);
+ if(m)values.push(['Mark fiyatı',fmt(m.markPrice,6)],['Index fiyatı',fmt(m.indexPrice,6)],['Funding',fmt(Number(m.lastFundingRate)*100,5)+'%'],['Sonraki funding',m.nextFundingTime?new Date(m.nextFundingTime).toLocaleString('tr-TR'):'—']);
+ if(o)values.push(['Open Interest (kontrat miktarı)',fmt(o.openInterest,3)]);
+ if(b?.bids?.length&&b?.asks?.length)values.push(['En iyi alış',fmt(b.bids[0][0],6)],['En iyi satış',fmt(b.asks[0][0],6)],['Spread',fmt(Number(b.asks[0][0])-Number(b.bids[0][0]),6)]);
+ if(l)values.push(['Long/Short hesap oranı (5dk)',fmt(l.longShortRatio,3)],['Long hesap yüzdesi',fmt(Number(l.longAccount)*100,2)+'%']);
+ for(const [name,val] of values){const el=document.createElement('div');el.className='metric';const a=document.createElement('small'),b=document.createElement('b');a.textContent=name;b.textContent=val;el.append(a,b);grid.append(el)}
+ try{
+  const p=calcFuturesPower(data['OI Geçmişi'],data.Taker,cvdWindow(),period);
+  $('powerScore').textContent=p.score+' / 100';$('powerBar').style.width=p.score+'%';
+  $('powerVerdict').textContent=p.score>=60?'Alış yönlü türev baskısı':p.score<=40?'Satış yönlü türev baskısı':'Dengeli / karışık baskı';
+  $('powerCoverage').textContent='OI + taker ('+period+') · CVD (tam '+TF_LABEL[interval]+' penceresi, '+p.count+' işlem)';
+  powerMetric('OI değişimi · son 12 örnek',fmt(p.oiDelta,3)+'%');
+  powerMetric('Taker alış-satış farkı',fmt(p.imbalance*100,2)+'%');
+  powerMetric('Yakın dönem CVD (USDT)',fmt(p.cvd,0));
+  powerMetric('CVD / işlem hacmi',fmt(p.cvdRatio*100,2)+'%');
+  powerMetric('OI bileşeni (20%)',fmt(p.oiComponent,1)+'/100');
+  powerMetric('Taker bileşeni (40%)',fmt(p.takerComponent,1)+'/100');
+  powerMetric('CVD bileşeni (40%)',fmt(p.cvdComponent,1)+'/100');
+ }catch(e){powerReset('Skor hesaplanmadı: '+e.message);}
+ const failed=settled.map((r,i)=>r.status==='rejected'?paths[i][0]:null).filter(Boolean);
+ status.textContent=values.length?'Güncelleme: '+new Date().toLocaleTimeString('tr-TR')+(failed.length?' · Erişilemeyen: '+failed.join(', '):' · Kaynaklar yanıt verdi'):'Veri alınamadı. Binance Futures bölgesel erişim, bağlantı veya CORS kısıtı olabilir.';
+}
+
+function render(){clearLiquidations();stopTradeStream();renderControls();$('futuresPanel').style.display=market==='futures'?'block':'none';if(futuresTimer){clearInterval(futuresTimer);futuresTimer=null;}++futuresReq;if(market==='futures'){startLiquidations();startTradeStream();loadFutures();futuresTimer=setInterval(()=>{loadFutures();renderCvd();},30000);} const [name,symbol]=DATA[market].items[index];$('heading').textContent=name+' · TradingView Grafik';$('description').textContent=DATA[market].label+' · '+symbol+' · Ortak zaman dilimi: '+TF_LABEL[interval];$('activeTimeframe').textContent=TF_LABEL[interval];$('tvTimeframe').textContent=TF_LABEL[interval];$('scoreTimeframe').textContent=TF_LABEL[interval];$('selected').textContent=name;$('venue').textContent='TradingView sembolü: '+symbol;$('note').textContent=DATA[market].note;loadChart();loadTechnical();loadScores();}
+window.addEventListener('beforeunload',()=>{if(tradeSymbol)persistTrade();});$('futuresRefresh').addEventListener('click',loadFutures);$('reload').addEventListener('click',render);render();
+</script>
+</body>
+</html>
